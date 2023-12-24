@@ -28,7 +28,7 @@ park:
 
 	# In the standard RISC-V calling convention, the stack pointer sp
 	# is always 16-byte aligned.
-.balign 16
+.balign 16			# 内存对齐，16字节对齐
 stacks:
 	.skip	STACK_SIZE * MAXNUM_CPU # allocate space for all the harts stacks
 

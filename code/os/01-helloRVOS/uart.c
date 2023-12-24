@@ -88,6 +88,7 @@ void uart_init()
 	 * split the value of 3(0x0003) into two bytes, DLL stores the low byte,
 	 * DLM stores the high byte.
 	 */
+	// 设置波特率
 	uint8_t lcr = uart_read_reg(LCR);
 	uart_write_reg(LCR, lcr | (1 << 7));
 	uart_write_reg(DLL, 0x03);
@@ -101,20 +102,27 @@ void uart_init()
 	 * - no break control
 	 * - disabled baud latch
 	 */
+	// 设置数据格式
 	lcr = 0;
 	uart_write_reg(LCR, lcr | (3 << 0));
 }
 
 int uart_putc(char ch)
 {
-	while ((uart_read_reg(LSR) & LSR_TX_IDLE) == 0);
-	return uart_write_reg(THR, ch);
+	while ((uart_read_reg(LSR) & LSR_TX_IDLE) == 0);		// 等待发送缓冲区为空
+	return uart_write_reg(THR, ch);							// 发送字符
 }
 
 void uart_puts(char *s)
 {
-	while (*s) {
-		uart_putc(*s++);
+	while (*s) {							// 如果字符串未结束
+		uart_putc(*s++);					// 发送*s, 并将s指向下一个字符
 	}
 }
 
+// 实现从串口读取一个字符
+char uart_getc(void)
+{
+	while ((uart_read_reg(LSR) & LSR_RX_READY) == 0);		// 等待接收缓冲区非空
+	return uart_read_reg(RHR);							    // 返回接收字符
+}
