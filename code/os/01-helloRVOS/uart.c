@@ -5,6 +5,9 @@
  * The UART control registers are memory-mapped at address UART0. 
  * This macro returns the address of one of the registers.
  */
+// c语言宏定义,得到寄存器的值
+// 用volatile声明的变量表示该变量随时可能发生变化，与该变量有关的运算，不要进行编译优化，以免出错
+// 这里得到的是一个指针. UART0是一个地址, reg是一个偏移量
 #define UART_REG(reg) ((volatile uint8_t *)(UART0 + reg))
 
 /*
@@ -18,6 +21,7 @@
  * 0 (write mode): THR/DLL
  * 1 (write mode): IER/DLM
  */
+// 串口对应的寄存器
 #define RHR 0	// Receive Holding Register (read mode)
 #define THR 0	// Transmit Holding Register (write mode)
 #define DLL 0	// LSB of Divisor Latch (write mode)
@@ -61,11 +65,11 @@
  * 1 = transmitter hold register (or FIFO) is empty. CPU can load the next character.
  * ......
  */
-#define LSR_RX_READY (1 << 0)
-#define LSR_TX_IDLE  (1 << 5)
+#define LSR_RX_READY (1 << 0)								// 接收缓冲区非空
+#define LSR_TX_IDLE  (1 << 5)								// 发送缓冲区为空
 
-#define uart_read_reg(reg) (*(UART_REG(reg)))
-#define uart_write_reg(reg, v) (*(UART_REG(reg)) = (v))
+#define uart_read_reg(reg) (*(UART_REG(reg)))				// 读取寄存器的值
+#define uart_write_reg(reg, v) (*(UART_REG(reg)) = (v))		// 写入寄存器的值
 
 void uart_init()
 {
@@ -90,7 +94,7 @@ void uart_init()
 	 */
 	// 设置波特率
 	uint8_t lcr = uart_read_reg(LCR);
-	uart_write_reg(LCR, lcr | (1 << 7));
+	uart_write_reg(LCR, lcr | (1 << 7)); 				// 把第7位设置为1,这样dll和dlm就可以用来设置波特率了
 	uart_write_reg(DLL, 0x03);
 	uart_write_reg(DLM, 0x00);
 

@@ -6,8 +6,8 @@ extern int uart_putc(char ch);
 
 void start_kernel(void)
 {
-	uart_init();
-	uart_puts("Hello, RVOS!\n");
+	uart_init();							// 初始化串口
+	uart_puts("Hello, RVOS!\n");			// 打印 Hello, RVOS!
 
 	while (1) {
 		char ch = uart_getc();				// 获取字符
