@@ -1,6 +1,7 @@
 #include "platform.h"
 
 	# size of each hart's stack is 1024 bytes
+	# 初始化栈
 	.equ	STACK_SIZE, 1024
 
 	.global	_start
@@ -13,9 +14,9 @@ _start:
 	bnez	t0, park		# if we're not on the hart 0
 					# we park the hart
 	# Setup stacks, the stack grows from bottom to top, so we put the
-	# stack pointer to the very end of the stack range.
+	# stack pointer to the very end of the stack range. 栈从底部向上增长，所以我们将栈指针放在栈范围的最后。
 	slli	t0, t0, 10		# shift left the hart id by 1024
-	la	sp, stacks + STACK_SIZE	# set the initial stack pointer
+	la	sp, stacks + STACK_SIZE	# set the initial stack pointer	# 将sp指向第一个栈的最后
 					# to the end of the first stack space
 	add	sp, sp, t0		# move the current hart stack pointer
 					# to its place in the stack space
@@ -28,7 +29,7 @@ park:
 
 	# In the standard RISC-V calling convention, the stack pointer sp
 	# is always 16-byte aligned.
-.balign 16
+.balign 16	#内存对齐
 stacks:
 	.skip	STACK_SIZE * MAXNUM_CPU # allocate space for all the harts stacks
 

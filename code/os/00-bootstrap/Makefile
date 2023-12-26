@@ -15,7 +15,7 @@ all: os.elf
 # start.o must be the first in dependency!
 os.elf: ${OBJS}
 	${CC} ${CFLAGS} -Ttext=0x80000000 -o os.elf $^
-	${OBJCOPY} -O binary os.elf os.bin
+	${OBJCOPY} -O binary os.elf os.bin				# 生成二进制文件
 
 %.o : %.c
 	${CC} ${CFLAGS} -c -o $@ $<
