@@ -35,5 +35,6 @@ void timer_handler()
 
 	timer_load(TIMER_INTERVAL);
 
-	// schedule();
+	// 时钟中断时，调度
+	schedule();
 }

@@ -12,6 +12,11 @@ extern void switch_to(struct context *next);
 uint8_t __attribute__((aligned(16))) task_stack[MAX_TASKS][STACK_SIZE];
 struct context ctx_tasks[MAX_TASKS];
 
+struct tasks {
+	int priority;
+	int waiting_time;
+}tasks[MAX_TASKS];
+
 /*
  * _top is used to mark the max available position of ctx_tasks
  * _current is used to point to the context of current task
@@ -38,7 +43,22 @@ void schedule()
 		return;
 	}
 
-	_current = (_current + 1) % _top;
+	// _current = (_current + 1) % _top;
+	// 优先级调度
+	int highest_score = 0;
+	for (int i = 0; i < _top; i++) {
+		tasks[i].waiting_time++;
+		int score = tasks[i].priority + tasks[i].waiting_time;
+		printf("task %d, priority: %d, waiting time: %d, score: %d\n", i, tasks[i].priority, tasks[i].waiting_time, score);
+		if (score > highest_score) {
+			highest_score = score;
+			_current = i;
+		}
+	}
+
+	printf("switch to task %d\n", _current);
+	tasks[_current].waiting_time = 0;
+
 	struct context *next = &(ctx_tasks[_current]);
 	switch_to(next);
 }
@@ -51,11 +71,13 @@ void schedule()
  * 	0: success
  * 	-1: if error occured
  */
-int task_create(void (*start_routin)(void))
+int task_create(void (*start_routin)(void), int priority)
 {
 	if (_top < MAX_TASKS) {
 		ctx_tasks[_top].sp = (reg_t) &task_stack[_top][STACK_SIZE];
 		ctx_tasks[_top].pc = (reg_t) start_routin;
+		tasks[_top].priority = priority;
+		tasks[_top].waiting_time = 0;
 		_top++;
 		return 0;
 	} else {

@@ -61,7 +61,7 @@ struct context {
 	reg_t pc; // offset: 31 *4 = 124
 };
 
-extern int  task_create(void (*task)(void));
+extern int  task_create(void (*task)(void), int priority);
 extern void task_delay(volatile int count);
 extern void task_yield();
 
