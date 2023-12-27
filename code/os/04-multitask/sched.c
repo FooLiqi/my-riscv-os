@@ -9,15 +9,15 @@ extern void switch_to(struct context *next);
  * In the standard RISC-V calling convention, the stack pointer sp
  * is always 16-byte aligned.
  */
-uint8_t __attribute__((aligned(16))) task_stack[MAX_TASKS][STACK_SIZE];
-struct context ctx_tasks[MAX_TASKS];
+uint8_t __attribute__((aligned(16))) task_stack[MAX_TASKS][STACK_SIZE];		// 开辟一块空间充当栈
+struct context ctx_tasks[MAX_TASKS];										// 每个任务的上下文
 
 /*
  * _top is used to mark the max available position of ctx_tasks
  * _current is used to point to the context of current task
  */
-static int _top = 0;
-static int _current = -1;
+static int _top = 0;										// 一共创建了多少个任务
+static int _current = -1;									// 当前任务
 
 static void w_mscratch(reg_t x)
 {
@@ -32,6 +32,7 @@ void sched_init()
 /*
  * implment a simple cycle FIFO schedular
  */
+// 轮询调度
 void schedule()
 {
 	if (_top <= 0) {
