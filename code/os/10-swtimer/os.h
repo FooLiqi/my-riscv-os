@@ -74,12 +74,13 @@ extern int spin_lock(void);
 extern int spin_unlock(void);
 
 /* software timer */
+// 软件定时器的实现，其实就是一个结构体数组，每个结构体中包含了定时器的回调函数、回调函数的参数、定时器的超时时间等信息。
 struct timer {
 	void (*func)(void *arg);
 	void *arg;
 	uint32_t timeout_tick;
 };
-extern struct timer *timer_create(void (*handler)(void *arg), void *arg, uint32_t timeout);
-extern void timer_delete(struct timer *timer);
+extern struct timer *timer_create(void (*handler)(void *arg), void *arg, uint32_t timeout);		// 创建一个定时器
+extern void timer_delete(struct timer *timer);													// 删除一个定时器
 
 #endif /* __OS_H__ */

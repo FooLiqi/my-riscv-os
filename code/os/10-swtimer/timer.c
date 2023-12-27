@@ -21,6 +21,7 @@ void timer_load(int interval)
 
 void timer_init()
 {
+	// 初始化软件定时器
 	struct timer *t = &(timer_list[0]);
 	for (int i = 0; i < MAX_TIMER; i++) {
 		t->func = NULL; /* use .func to flag if the item is used */
@@ -48,6 +49,7 @@ struct timer *timer_create(void (*handler)(void *arg), void *arg, uint32_t timeo
 	/* use lock to protect the shared timer_list between multiple tasks */
 	spin_lock();
 
+	// 分配一个定时器
 	struct timer *t = &(timer_list[0]);
 	for (int i = 0; i < MAX_TIMER; i++) {
 		if (NULL == t->func) {
@@ -60,9 +62,9 @@ struct timer *timer_create(void (*handler)(void *arg), void *arg, uint32_t timeo
 		return NULL;
 	}
 
-	t->func = handler;
-	t->arg = arg;
-	t->timeout_tick = _tick + timeout;
+	t->func = handler;							// 设置定时器的回调函数
+	t->arg = arg;								// 设置定时器的回调函数和回调函数的参数
+	t->timeout_tick = _tick + timeout;			// 设置定时器的超时时间
 
 	spin_unlock();
 
@@ -89,11 +91,12 @@ void timer_delete(struct timer *timer)
 /* this routine should be called in interrupt context (interrupt is disabled) */
 static inline void timer_check()
 {
+	// O(n) 时间复杂度，遍历所有的定时器，检查是否超时
 	struct timer *t = &(timer_list[0]);
 	for (int i = 0; i < MAX_TIMER; i++) {
 		if (NULL != t->func) {
 			if (_tick >= t->timeout_tick) {
-				t->func(t->arg);
+				t->func(t->arg);		// 调用定时器的回调函数
 
 				/* once time, just delete it after timeout */
 				t->func = NULL;
@@ -111,6 +114,7 @@ void timer_handler()
 	_tick++;
 	printf("tick: %d\n", _tick);
 
+	// 检查软件定时器是否超时
 	timer_check();
 
 	timer_load(TIMER_INTERVAL);
