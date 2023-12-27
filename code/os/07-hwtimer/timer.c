@@ -1,11 +1,15 @@
 #include "os.h"
 
 /* interval ~= 1s */
+// 设置中断的时间间隔 ~= 1s
 #define TIMER_INTERVAL CLINT_TIMEBASE_FREQ
 
 static uint32_t _tick = 0;
 
+extern void schedule(void);
+
 /* load timer interval(in ticks) for next timer interrupt.*/
+// 设置下一次中断的时间
 void timer_load(int interval)
 {
 	/* each CPU has a separate source of timer interrupts. */
@@ -34,5 +38,9 @@ void timer_handler()
 	_tick++;
 	printf("tick: %d\n", _tick);
 
+	// 重新设置下一次中断的时间
 	timer_load(TIMER_INTERVAL);
+
+	// 调度
+	// schedule();
 }

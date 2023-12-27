@@ -86,11 +86,13 @@
   * interrupt can be cleared by writing 0 to the MSIP bit in mip.
   * On reset, each msip register is cleared to zero.
   */
+// CLINT相关寄存器地址
 #define CLINT_BASE 0x2000000L
 #define CLINT_MSIP(hartid) (CLINT_BASE + 4 * (hartid))
 #define CLINT_MTIMECMP(hartid) (CLINT_BASE + 0x4000 + 8 * (hartid))
 #define CLINT_MTIME (CLINT_BASE + 0xBFF8) // cycles since boot.
 
+// tick频率
 /* 10000000 ticks per-second */
 #define CLINT_TIMEBASE_FREQ 10000000
 
