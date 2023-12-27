@@ -108,7 +108,7 @@ trap_vector:
 	csrw	mscratch, t5
 
 	# call the C trap handler in trap.c
-	csrr	a0, mepc
+	csrr	a0, mepc						# 此时mepc指向的是发生Trap的指令的命令
 	csrr	a1, mcause
 	call	trap_handler
 
