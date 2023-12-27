@@ -3,6 +3,7 @@
 #include "user_api.h"
 
 #define DELAY 4000
+// #define CONFIG_SYSCALL
 
 void user_task0(void)
 {
@@ -20,7 +21,8 @@ void user_task0(void)
 #ifdef CONFIG_SYSCALL
 	int ret = -1;
 	ret = gethid(&hid);
-	//ret = gethid(NULL);
+	// ret = gethid(NULL);
+	// printf("gethid() return: %d\n", ret);
 	if (!ret) {
 		printf("system call returned!, hart id is %d\n", hid);
 	} else {

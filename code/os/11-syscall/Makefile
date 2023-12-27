@@ -2,8 +2,8 @@ include ../../common.mk
 
 SYSCALL = y
 
-ifeq (${SYSCALL}, y)
-CFLAGS += -D CONFIG_SYSCALL
+ifeq (${SYSCALL}, y)				# 如果 SYSCALL 为 y
+CFLAGS += -D CONFIG_SYSCALL			# 则在编译时加入 -D CONFIG_SYSCALL
 endif
 
 SRCS_ASM = \

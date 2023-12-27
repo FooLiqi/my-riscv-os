@@ -68,7 +68,7 @@ reg_t trap_handler(reg_t epc, reg_t cause, struct context *cxt)
 		case 8:
 			uart_puts("System call from U-mode!\n");
 			do_syscall(cxt);
-			return_pc += 4;
+			return_pc += 4;								// 返回到下一条指令
 			break;
 		default:
 			panic("OOPS! What can I do!");
