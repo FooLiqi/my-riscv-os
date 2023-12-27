@@ -2,7 +2,7 @@
 
 #define DELAY 4000
 
-#define USE_LOCK
+// #define USE_LOCK
 
 void user_task0(void)
 {
