@@ -94,29 +94,34 @@
 .globl switch_to
 .balign 4
 switch_to:
+	// 保存当前mscratch所指向的上下文
 	csrrw	t6, mscratch, t6	# swap t6 and mscratch
-	beqz	t6, 1f			# Note: the first time switch_to() is
-	                                # called, mscratch is initialized as zero
-					# (in sched_init()), which makes t6 zero,
-					# and that's the special case we have to
-					# handle with t6
-	reg_save t6			# save context of prev task
+	beqz	t6, 1f				# Note: the first time switch_to() is
+	                        	# called, mscratch is initialized as zero
+								# (in sched_init()), which makes t6 zero,
+								# and that's the special case we have to
+								# handle with t6
+	reg_save t6					# save context of prev task
 
+	// 上面保存了所有的通用寄存器，但是没有保存t6，现在保存t6
 	# Save the actual t6 register, which we swapped into
 	# mscratch
-	mv	t5, t6		# t5 points to the context of current task
-	csrr	t6, mscratch	# read t6 back from mscratch
-	sw	t6, 120(t5)	# save t6 with t5 as base
+	mv		t5, t6				# t5 points to the context of current task
+	csrr	t6, mscratch		# read t6 back from mscratch
+	sw		t6, 120(t5)			# save t6 with t5 as base
 
 1:
+	// 将mscratch指向下一个任务的上下文
 	# switch mscratch to point to the context of the next task
 	csrw	mscratch, a0
 
+	// 恢复mscratch所指向的上下文
 	# Restore all GP registers
 	# Use t6 to point to the context of the new task
-	mv	t6, a0
+	mv		t6, a0
 	reg_restore t6
 
+	// 返回ra所指向的地址
 	# Do actual context switching.
 	ret
 
