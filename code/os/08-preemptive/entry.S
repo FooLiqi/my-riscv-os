@@ -130,10 +130,13 @@ trap_vector:
 # a0: pointer to the context of the next task
 .globl switch_to
 .balign 4
+# 与07中的switch_to不同，这里的switch_to是在中断中调用的，因此不需要保存当前的上下文，在trap_vector中已经保存了
 switch_to:
 	# switch mscratch to point to the context of the next task
 	csrw	mscratch, a0
 	# set mepc to the pc of the next task
+	
+	# 从next中读取mepc的值
 	lw	a1, 124(a0)
 	csrw	mepc, a1
 

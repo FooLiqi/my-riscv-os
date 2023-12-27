@@ -24,6 +24,7 @@ void sched_init()
 	w_mscratch(0);
 
 	/* enable machine-mode software interrupts. */
+	// 打开机器模式的软件中断
 	w_mie(r_mie() | MIE_MSIE);
 }
 
@@ -69,6 +70,7 @@ int task_create(void (*start_routin)(void))
  */
 void task_yield()
 {
+	// 通过软件中断来切换任务
 	/* trigger a machine-level software interrupt */
 	int id = r_mhartid();
 	*(uint32_t*)CLINT_MSIP(id) = 1;
