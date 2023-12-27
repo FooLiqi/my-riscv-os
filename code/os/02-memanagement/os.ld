@@ -10,6 +10,8 @@
  * RISC-V target. We will further refine this by using -march
  * and -mabi when calling gcc.
  */
+ /* 指定输出文件所适用的计算机体系架构。
+ */
 OUTPUT_ARCH( "riscv" )
 
 /*
@@ -19,6 +21,7 @@ OUTPUT_ARCH( "riscv" )
  * The argument of ENTRY command is a symbol name, here is "_start" which is
  * defined in start.S.
  */
+ /* 设置“入口点 (entry point)”，即程序中执行的第一条指令 */
 ENTRY( _start )
 
 /*
@@ -44,6 +47,11 @@ ENTRY( _start )
  * QEMU-virt machine will start executing.
  * Finally LENGTH = 128M tells the linker that we have 128 megabyte of RAM.
  * The linker will double check this to make sure everything can fit.
+ */
+ /* 
+ * 指定了ram从地址0x80000000开始,长度为128MB
+ * 'w' (writeable), 'x' (executable), 'a' (allocatable)
+ * 'r' (read_only), 'i' (initailized)
  */
 MEMORY
 {
@@ -78,12 +86,18 @@ MEMORY
  * the CURRENT location ('.' = current memory location). This current memory
  * location moves as we add things.
  */
+
+/* 
+ * 用来指定每块都是放在了哪
+ */
+
 SECTIONS
 {
 	/*
 	 * We are going to layout all text sections in .text output section,
 	 * starting with .text. The asterisk("*") in front of the
 	 * parentheses means to match the .text section of ANY object file.
+	 * PROVIDE 相当于给参数赋值,符号.表示当前的指针偏移位置,>ram表示这里放到ram里面去
 	 */
 	.text : {
 		PROVIDE(_text_start = .);
@@ -103,6 +117,7 @@ SECTIONS
 		 * location to 4096 bytes. This will insert padding bytes until
 		 * current location becomes aligned on 4096-byte boundary.
 		 * This is because our paging system's resolution is 4,096 bytes.
+		 * ALIGEN表示内存对齐到4K,这样能加速运算速度
 		 */
 		. = ALIGN(4096);
 		PROVIDE(_data_start = .);

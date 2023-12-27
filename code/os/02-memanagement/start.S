@@ -16,11 +16,11 @@ _start:
 	# Set all bytes in the BSS section to zero.
 	la	a0, _bss_start
 	la	a1, _bss_end
-	bgeu	a0, a1, 2f
+	bgeu	a0, a1, 2f  		# if (_bss_start >= _bss_end) goto 2
 1:
 	sw	zero, (a0)
 	addi	a0, a0, 4
-	bltu	a0, a1, 1b
+	bltu	a0, a1, 1b			# if (a0 < a1) goto 1
 2:
 	# Setup stacks, the stack grows from bottom to top, so we put the
 	# stack pointer to the very end of the stack range.

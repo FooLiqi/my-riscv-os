@@ -4,8 +4,8 @@
 #include "types.h"
 #include "platform.h"
 
-#include <stddef.h>
-#include <stdarg.h>
+#include <stddef.h>                    // for some macros
+#include <stdarg.h>                    // for variable arguments
 
 /* uart */
 extern int uart_putc(char ch);

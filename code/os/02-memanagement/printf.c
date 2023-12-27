@@ -6,17 +6,22 @@
 
 static int _vsnprintf(char * out, size_t n, const char* s, va_list vl)
 {
+	// 使用这个va_list宏可以不指定参数数量
+	// 得到输出的长度并且将内容传递给out
+	/*
+	 * va_arg:获取变参的具体内容，t为变参的类型，如有多个参数，则通过移动ap的指针来获得变参的地址，从而获得内容
+	 */
 	int format = 0;
 	int longarg = 0;
 	size_t pos = 0;
 	for (; *s; s++) {
 		if (format) {
 			switch(*s) {
-			case 'l': {
+			case 'l': {												// long
 				longarg = 1;
 				break;
 			}
-			case 'p': {
+			case 'p': {												// pointer
 				longarg = 1;
 				if (out && pos < n) {
 					out[pos] = '0';
@@ -27,7 +32,7 @@ static int _vsnprintf(char * out, size_t n, const char* s, va_list vl)
 				}
 				pos++;
 			}
-			case 'x': {
+			case 'x': {												// hex
 				long num = longarg ? va_arg(vl, long) : va_arg(vl, int);
 				int hexdigits = 2*(longarg ? sizeof(long) : sizeof(int))-1;
 				for(int i = hexdigits; i >= 0; i--) {
@@ -109,13 +114,13 @@ static char out_buf[1000]; // buffer for _vprintf()
 
 static int _vprintf(const char* s, va_list vl)
 {
-	int res = _vsnprintf(NULL, -1, s, vl);
+	int res = _vsnprintf(NULL, -1, s, vl);					// 获取输出的长度
 	if (res+1 >= sizeof(out_buf)) {
 		uart_puts("error: output string size overflow\n");
 		while(1) {}
 	}
-	_vsnprintf(out_buf, res + 1, s, vl);
-	uart_puts(out_buf);
+	_vsnprintf(out_buf, res + 1, s, vl);					// 将内容传递给out_buf
+	uart_puts(out_buf);										// 输出
 	return res;
 }
 
@@ -123,9 +128,9 @@ int printf(const char* s, ...)
 {
 	int res = 0;
 	va_list vl;
-	va_start(vl, s);
+	va_start(vl, s);					// 初始化vl指针，指向第一个可变参数
 	res = _vprintf(s, vl);
-	va_end(vl);
+	va_end(vl);							// 清空vl指针
 	return res;
 }
 

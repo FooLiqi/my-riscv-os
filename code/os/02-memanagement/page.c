@@ -3,6 +3,7 @@
 /*
  * Following global vars are defined in mem.S
  */
+// 内核代码段的起始和结束地址
 extern uint32_t TEXT_START;
 extern uint32_t TEXT_END;
 extern uint32_t DATA_START;
@@ -26,8 +27,8 @@ static uint32_t _num_pages = 0;
 #define PAGE_SIZE 4096
 #define PAGE_ORDER 12
 
-#define PAGE_TAKEN (uint8_t)(1 << 0)
-#define PAGE_LAST  (uint8_t)(1 << 1)
+#define PAGE_TAKEN (uint8_t)(1 << 0)			//第0位表示有没有被使用
+#define PAGE_LAST  (uint8_t)(1 << 1)			//第1位表示是不是最后一页
 
 /*
  * Page Descriptor 
@@ -39,6 +40,7 @@ struct Page {
 	uint8_t flags;
 };
 
+// static和inline联合使用既能提高程序的运行效率又能让其声明后被多个.c文件使用。
 static inline void _clear(struct Page *page)
 {
 	page->flags = 0;
@@ -81,16 +83,22 @@ void page_init()
 	/* 
 	 * We reserved 8 Page (8 x 4096) to hold the Page structures.
 	 * It should be enough to manage at most 128 MB (8 x 4096 x 4096) 
+	 * 这里的话是因为每一个bit可以对应一个页的状况,所以我们足够满足128MB的存储要求
 	 */
 	_num_pages = (HEAP_SIZE / PAGE_SIZE) - 8;
 	printf("HEAP_START = %x, HEAP_SIZE = %x, num of pages = %d\n", HEAP_START, HEAP_SIZE, _num_pages);
 	
+	// 分配page index的空间
 	struct Page *page = (struct Page *)HEAP_START;
 	for (int i = 0; i < _num_pages; i++) {
 		_clear(page);
 		page++;	
 	}
 
+	// 打印page index的空间
+	printf("page descriptor bitmaps: 0x%x -> 0x%x\n", HEAP_START, HEAP_START + 8 * PAGE_SIZE);
+
+	// 计算实际的heap的起始和结束地址
 	_alloc_start = _align_page(HEAP_START + 8 * PAGE_SIZE);
 	_alloc_end = _alloc_start + (PAGE_SIZE * _num_pages);
 
@@ -105,6 +113,7 @@ void page_init()
  * Allocate a memory block which is composed of contiguous physical pages
  * - npages: the number of PAGE_SIZE pages to allocate
  */
+// 分配连续的物理页
 void *page_alloc(int npages)
 {
 	/* Note we are searching the page descriptor bitmaps. */
@@ -130,6 +139,8 @@ void *page_alloc(int npages)
 			 * take housekeeping, then return the actual start
 			 * address of the first page of this memory block
 			 */
+			// 如果找到了连续的npages个空闲页,那么就将其标记为已经使用
+			// 并且返回这个连续页的起始地址
 			if (found) {
 				struct Page *page_k = page_i;
 				for (int k = i; k < (i + npages); k++) {
@@ -137,7 +148,7 @@ void *page_alloc(int npages)
 					page_k++;
 				}
 				page_k--;
-				_set_flag(page_k, PAGE_LAST);
+				_set_flag(page_k, PAGE_LAST);						//将最后一页的结束标志位设置为1
 				return (void *)(_alloc_start + i * PAGE_SIZE);
 			}
 		}
@@ -175,7 +186,7 @@ void page_free(void *p)
 
 void page_test()
 {
-	void *p = page_alloc(2);
+	void *p = page_alloc(1);
 	printf("p = 0x%x\n", p);
 	//page_free(p);
 
