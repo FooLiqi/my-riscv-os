@@ -7,6 +7,8 @@
 extern void uart_init(void);
 extern void page_init(void);
 extern void page_test(void);
+extern void block_init(void);
+extern void mm_test(void);
 
 void start_kernel(void)
 {
@@ -15,6 +17,9 @@ void start_kernel(void)
 
 	page_init();
 	page_test();
+
+	block_init();
+	mm_test();
 
 	while (1) {}; // stop here!
 }

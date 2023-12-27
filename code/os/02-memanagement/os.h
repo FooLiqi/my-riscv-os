@@ -16,7 +16,11 @@ extern int  printf(const char* s, ...);
 extern void panic(char *s);
 
 /* memory management */
-extern void *page_alloc(int npages);
-extern void page_free(void *p);
+// extern void *page_alloc(int npages);
+// extern void page_free(void *p);
+
+/* malloc */
+extern void *block_alloc(size_t size);
+extern void block_free(void *p);
 
 #endif /* __OS_H__ */
