@@ -13,7 +13,7 @@ void trap_init()
 
 void external_interrupt_handler()
 {
-	int irq = plic_claim();
+	int irq = plic_claim();										// 获取优先级最高的中断号
 
 	if (irq == UART0_IRQ){
       		uart_isr();
@@ -22,7 +22,7 @@ void external_interrupt_handler()
 	}
 	
 	if (irq) {
-		plic_complete(irq);
+		plic_complete(irq);										// 中断处理完成，通知PLIC
 	}
 }
 

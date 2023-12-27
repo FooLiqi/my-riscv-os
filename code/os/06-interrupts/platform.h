@@ -52,6 +52,7 @@
  * #define VIRT_PLIC_SIZE(__num_context) \
  *     (VIRT_PLIC_CONTEXT_BASE + (__num_context) * VIRT_PLIC_CONTEXT_STRIDE)
  */
+// PLIC相关寄存器地址
 #define PLIC_BASE 0x0c000000L
 #define PLIC_PRIORITY(id) (PLIC_BASE + (id) * 4)
 #define PLIC_PENDING(id) (PLIC_BASE + 0x1000 + ((id) / 32) * 4)
