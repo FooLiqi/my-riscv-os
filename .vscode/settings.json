@@ -1,0 +1,6 @@
+{
+    "files.associations": {
+        "user_api.h": "c",
+        "os.h": "c"
+    }
+}
