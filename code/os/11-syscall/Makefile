@@ -23,7 +23,8 @@ SRCS_C = \
 	plic.c \
 	timer.c \
 	lock.c \
-	syscall.c
+	syscall.c \
+	compiler_tool.c
 
 OBJS = $(SRCS_ASM:.S=.o)
 OBJS += $(SRCS_C:.c=.o)

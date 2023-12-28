@@ -37,6 +37,7 @@ void schedule()
 		return;
 	}
 
+	printf("schedule: _top = %d\n", _top);
 	_current = (_current + 1) % _top;
 	struct context *next = &(ctx_tasks[_current]);
 	switch_to(next);

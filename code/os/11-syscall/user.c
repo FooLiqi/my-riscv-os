@@ -21,6 +21,7 @@ void user_task0(void)
 
 #ifdef CONFIG_SYSCALL
 	int ret = -1;
+	// 获取当前hart id
 	ret = gethid(&hid);
 	// ret = gethid(NULL);
 	// printf("gethid() return: %d\n", ret);
@@ -29,12 +30,18 @@ void user_task0(void)
 	} else {
 		printf("gethid() failed, return: %d\n", ret);
 	}
+
+	// 获取当前系统时间
 	ret = gettime(&time);
 	if (!ret) {
 		printf("system call returned!, time is %d\n", time);
 	} else {
 		printf("gettime() failed, return: %d\n", ret);
 	}
+
+	// 打印字符串
+	myprintf("%c", '\n');
+	myprintfWithoutArgument("你好\n");
 #endif
 
 	while (1){
@@ -52,10 +59,36 @@ void user_task1(void)
 	}
 }
 
+
+void user_compile(void)
+{
+    const char *code = "void func1()\n{\nmyprintfWithoutArgument(\"helloworld\");\nmyprintfWithoutArgument(\"second statement\");myprintfWithoutArgument(\"你好,我是fjq\");\n}\n";
+
+#ifdef CONFIG_SYSCALL
+    int ret = -1;
+    ret = compileCode(code);
+
+    if (!ret)
+    {
+        printf("system call returned!, compile success!\n");
+    }
+    else
+    {
+        printf("compile() failed, return: %d\n", ret);
+    }
+#endif
+
+    while(1) {
+        uart_puts("User Compile: Running... \n");
+        task_delay(DELAY);
+    };
+}
+
 /* NOTICE: DON'T LOOP INFINITELY IN main() */
 void os_main(void)
 {
-	task_create(user_task0);
-	task_create(user_task1);
+	// task_create(user_task0);
+	// task_create(user_task1);
+	task_create(user_compile);
 }
 
