@@ -17,6 +17,9 @@ void timer_load(int interval)
 	int id = r_mhartid();
 	
 	*(uint64_t*)CLINT_MTIMECMP(id) = *(uint64_t*)CLINT_MTIME + interval;
+	// int time = *(uint64_t*)CLINT_MTIME;
+	// printf("time now: %d\n", time);
+	// printf("time from r_mtime(): %d\n", r_mtime());
 }
 
 void timer_init()

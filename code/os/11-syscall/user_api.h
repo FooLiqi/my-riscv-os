@@ -3,5 +3,6 @@
 
 /* user mode syscall APIs */
 extern int gethid(unsigned int *hid);
+extern int gettime(unsigned int *time);
 
 #endif /* __USER_API_H__ */

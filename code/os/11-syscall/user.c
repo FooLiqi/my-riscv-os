@@ -10,6 +10,7 @@ void user_task0(void)
 	uart_puts("Task 0: Created!\n");
 
 	unsigned int hid = -1;
+	unsigned int time = -1;
 
 	/*
 	 * if syscall is supported, this will trigger exception, 
@@ -27,6 +28,12 @@ void user_task0(void)
 		printf("system call returned!, hart id is %d\n", hid);
 	} else {
 		printf("gethid() failed, return: %d\n", ret);
+	}
+	ret = gettime(&time);
+	if (!ret) {
+		printf("system call returned!, time is %d\n", time);
+	} else {
+		printf("gettime() failed, return: %d\n", ret);
 	}
 #endif
 

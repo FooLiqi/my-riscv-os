@@ -12,17 +12,33 @@ int sys_gethid(unsigned int *ptr_hid)
 	}
 }
 
+int sys_gettime(unsigned int *ptr_time)
+{
+	printf("--> sys_gettime, arg0 = 0x%x\n", ptr_time);
+	if (ptr_time == NULL) {
+		return -1;
+	} else {
+		int time = *(uint64_t*)CLINT_MTIME;
+		*ptr_time = *(uint64_t*)CLINT_MTIME;
+		printf("time now: %d\n", time);
+		return 0;
+	}
+}
+
 void do_syscall(struct context *cxt)
 {
 	uint32_t syscall_num = cxt->a7;
 
 	switch (syscall_num) {
-	case SYS_gethid:
-		cxt->a0 = sys_gethid((unsigned int *)(cxt->a0));
-		break;
-	default:
-		printf("Unknown syscall no: %d\n", syscall_num);
-		cxt->a0 = -1;
+		case SYS_gethid:
+			cxt->a0 = sys_gethid((unsigned int *)(cxt->a0));
+			break;
+		case SYS_gettime:
+			cxt->a0 = sys_gettime((unsigned int *)(cxt->a0));
+			break;
+		default:
+			printf("Unknown syscall no: %d\n", syscall_num);
+			cxt->a0 = -1;
 	}
 
 	return;
