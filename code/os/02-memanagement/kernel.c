@@ -18,8 +18,8 @@ void start_kernel(void)
 	page_init();
 	page_test();
 
-	block_init();
-	mm_test();
+	// block_init();
+	// mm_test();
 
 	while (1) {}; // stop here!
 }

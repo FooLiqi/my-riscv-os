@@ -33,10 +33,32 @@ void timer_init()
 	w_mstatus(r_mstatus() | MSTATUS_MIE);
 }
 
+char time_buf[8] = {'0', '0', ':', '0', '0', ':', '0', '0'};
+char back_buf[8] = {'\b', '\b', '\b', '\b', '\b', '\b', '\b', '\b'};
+
+void timer_print()
+{
+	printf("tick: %d\n", _tick);
+	int sec = _tick % 60;
+	int min = (_tick / 60) % 60;
+	int hour = (_tick / 3600) % 24;
+	time_buf[7] = '0' + sec % 10;
+	time_buf[6] = '0' + sec / 10;
+	time_buf[4] = '0' + min % 10;
+	time_buf[3] = '0' + min / 10;
+	time_buf[1] = '0' + hour % 10;
+	time_buf[0] = '0' + hour / 10;
+	if (_tick != 0) {
+		printf("%c%c:%c%c:%c%c", back_buf[0], back_buf[1], back_buf[2], back_buf[3], back_buf[4], back_buf[5]);
+	}
+	printf("Hardware time: ");
+	printf("%c%c:%c%c:%c%c\n", time_buf[0], time_buf[1], time_buf[3], time_buf[4], time_buf[6], time_buf[7]);
+}
+
 void timer_handler() 
 {
+	timer_print();
 	_tick++;
-	printf("tick: %d\n", _tick);
 
 	// 重新设置下一次中断的时间
 	timer_load(TIMER_INTERVAL);

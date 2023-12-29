@@ -9,15 +9,27 @@ extern void switch_to(struct context *next);
  * In the standard RISC-V calling convention, the stack pointer sp
  * is always 16-byte aligned.
  */
-uint8_t __attribute__((aligned(16))) task_stack[MAX_TASKS][STACK_SIZE];		// 开辟一块空间充当栈
-struct context ctx_tasks[MAX_TASKS];										// 每个任务的上下文
+uint8_t __attribute__((aligned(16))) task_stack[MAX_TASKS][STACK_SIZE];
+struct context ctx_tasks[MAX_TASKS];
+struct context ctx_os;
+
+uint8_t task_priorities[MAX_TASKS];
+
+#define TASK_EMPTY 	 0
+#define TASK_READY   1
+#define TASK_RUNNING 2
+#define TASK_BLOCKED 3
+#define TASK_EXITED  4
+
+uint8_t task_status[MAX_TASKS];
+
+#define task_schedulable(task_id) (task_status[task_id] == TASK_READY || task_status[task_id] == TASK_RUNNING)
 
 /*
  * _top is used to mark the max available position of ctx_tasks
  * _current is used to point to the context of current task
  */
-static int _top = 0;										// 一共创建了多少个任务
-static int _current = -1;									// 当前任务
+static int _current = -1;
 
 static void w_mscratch(reg_t x)
 {
@@ -26,22 +38,57 @@ static void w_mscratch(reg_t x)
 
 void sched_init()
 {
-	w_mscratch(0);
+	w_mscratch((reg_t) &ctx_os);
+	for (int i = 0; i < MAX_TASKS; i++) {
+		task_status[i] = TASK_EMPTY;
+		task_priorities[i] = 0xff;
+	}
+}
+
+void back_to_os()
+{
+	switch_to(&ctx_os);
 }
 
 /*
  * implment a simple cycle FIFO schedular
  */
-// 轮询调度
 void schedule()
 {
-	if (_top <= 0) {
-		panic("Num of task should be greater than zero!");
+	// 先扫描获取最高优先级
+	int priority = 0xff;
+	for (int i = 0; i < MAX_TASKS; i++) {
+		if (task_schedulable(i) && task_priorities[i] < priority) {
+			priority = task_priorities[i];
+		}
+	}
+	// printf("priority: %d\n", priority);
+	// 扫描获取最高优先级的任务id，可能有多个，round-robin
+	int next_task_id = -1;
+	for (int i = 0; i < MAX_TASKS; i++) {
+		if (task_schedulable(i) && task_priorities[i] == priority) {
+			if (i > _current) {
+				next_task_id = i;
+				break;
+			}
+		}
+	}
+	if (next_task_id == -1) {
+		for (int i = 0; i < MAX_TASKS; i++) {
+			if (task_schedulable(i) && task_priorities[i] == priority) {
+				next_task_id = i;
+				break;
+			}
+		}
+	}
+	if (next_task_id == -1) {
+		printf("no schedulable task\n");
+		task_delay(10000);
 		return;
 	}
-
-	_current = (_current + 1) % _top;
+	_current = next_task_id;
 	struct context *next = &(ctx_tasks[_current]);
+	task_status[_current] = TASK_RUNNING;
 	switch_to(next);
 }
 
@@ -53,16 +100,36 @@ void schedule()
  * 	0: success
  * 	-1: if error occured
  */
-int task_create(void (*start_routin)(void))
+int task_create(void (*start_routin)(void* param), void* param, uint8_t priority)
 {
-	if (_top < MAX_TASKS) {
-		ctx_tasks[_top].sp = (reg_t) &task_stack[_top][STACK_SIZE];
-		ctx_tasks[_top].ra = (reg_t) start_routin;
-		_top++;
+	int task_id = -1;
+	for (int i = 0; i < MAX_TASKS; i++) {
+		if (task_status[i] == TASK_EMPTY || task_status[i] == TASK_EXITED) {
+			task_id = i;
+			break;
+		}
+	}
+	if (task_id != -1) {
+		ctx_tasks[task_id].sp = (reg_t) &task_stack[task_id][STACK_SIZE];
+		if (param != NULL) {
+			ctx_tasks[task_id].a0 = (reg_t) param;
+		}
+		ctx_tasks[task_id].ra = (reg_t) start_routin;
+		task_priorities[task_id] = priority;
+		task_status[task_id] = TASK_READY;
 		return 0;
 	} else {
 		return -1;
 	}
+}
+
+/*
+ * DESCRIPTION
+ * 	task_exit()  causes the currently executing task to exit.
+ */
+void task_exit(void) {
+	task_status[_current] = TASK_EXITED;
+	back_to_os();
 }
 
 /*
@@ -72,7 +139,8 @@ int task_create(void (*start_routin)(void))
  */
 void task_yield()
 {
-	schedule();
+	task_status[_current] = TASK_READY;
+	back_to_os();
 }
 
 /*
@@ -83,4 +151,3 @@ void task_delay(volatile int count)
 	count *= 50000;
 	while (count--);
 }
-

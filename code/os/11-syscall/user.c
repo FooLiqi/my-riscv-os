@@ -64,6 +64,10 @@ void user_compile(void)
 {
     const char *code = "void func1()\n{\nmyprintfWithoutArgument(\"helloworld\");\nmyprintfWithoutArgument(\"second statement\");myprintfWithoutArgument(\"你好,我是fjq\");\n}\n";
 
+	// printf("get mastatus\n");
+	// reg_t mstatus = r_mstatus();
+	// printf("mstatus2: %x\n", mstatus);
+
 #ifdef CONFIG_SYSCALL
     int ret = -1;
     ret = compileCode(code);

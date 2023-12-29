@@ -30,6 +30,11 @@ void start_kernel(void)
 
 	os_main();
 
+
+	reg_t mstatus = r_mstatus();
+
+	printf("mstatus1: %x\n", mstatus);
+
 	schedule();
 
 	uart_puts("Would not go here!\n");

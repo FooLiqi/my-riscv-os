@@ -192,11 +192,12 @@ void page_test()
 
 	void *p2 = page_alloc(7);
 	printf("p2 = 0x%x\n", p2);
-	page_free(p2);
+	// page_free(p2);
 
 	void *p3 = page_alloc(4);
 	printf("p3 = 0x%x\n", p3);
 	page_free(p3);
+	page_free(p2);
 	page_free(p);
 }
 
